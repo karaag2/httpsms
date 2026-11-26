@@ -47,8 +47,8 @@ services:
         value: emulator
       - key: EVENTS_QUEUE_NAME
         value: events
-      - key: EVENTS_QUEUE_ENDPOINT # https://<url-api>.onrender.com/v1/events
-        sync: false
+      - key: EVENTS_QUEUE_ENDPOINT
+        value: https://httpsms-api-ii1s.onrender.com/v1/events
       - key: EVENTS_QUEUE_USER_ID # id du compte système (étape INSERT)
         sync: false
       - key: EVENTS_QUEUE_USER_API_KEY # clé du compte système (étape INSERT)
@@ -60,7 +60,7 @@ services:
         sync: false
       # URL de l'interface web (liens dans les e-mails)
       - key: APP_URL
-        sync: false
+        value: https://httpsms-web-hlsm.onrender.com
       # SMTP volontairement absent pour le POC : l'API démarre sans,
       # seuls les e-mails admin (alertes téléphone hors ligne, etc.) échoueront dans les logs.
       # Turnstile : clé secrète de TEST Cloudflare (passe toujours)
@@ -78,10 +78,10 @@ services:
         source: /*
         destination: /index.html
     envVars:
-      - key: API_BASE_URL # https://<url-api>.onrender.com
-        sync: false
-      - key: APP_URL # https://<url-web>.onrender.com
-        sync: false
+      - key: API_BASE_URL
+        value: https://httpsms-api-ii1s.onrender.com
+      - key: APP_URL
+        value: https://httpsms-web-hlsm.onrender.com
       - key: NODE_VERSION
         value: "22"
       - key: APP_NAME
