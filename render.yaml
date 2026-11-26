@@ -1,0 +1,114 @@
+# Blueprint Render pour le POC httpSMS.
+# À placer à la racine de TON fork de NdoleStudio/httpsms.
+# Les valeurs `sync: false` sont demandées par Render au moment de la création (jamais commitées).
+
+databases:
+  - name: httpsms-db
+    plan: free
+    databaseName: httpsms
+    user: httpsms
+
+services:
+  # Redis (file / cache)
+  - type: keyvalue
+    name: httpsms-redis
+    plan: free
+    ipAllowList: [] # accès interne uniquement
+
+  # API Go (Dockerfile du dépôt)
+  - type: web
+    name: httpsms-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./api/Dockerfile
+    dockerContext: ./api
+    envVars:
+      - key: APP_HOST
+        value: 0.0.0.0
+      - key: APP_PORT
+        value: "8000"
+      - key: PORT
+        value: "8000"
+      - key: ENV
+        value: production
+      - key: APP_NAME
+        value: httpSMS
+      - key: DATABASE_URL
+        fromDatabase:
+          name: httpsms-db
+          property: connectionString
+      - key: REDIS_URL
+        fromService:
+          type: keyvalue
+          name: httpsms-redis
+          property: connectionString
+      # File d'événements « in process » (pas de Google Cloud Tasks)
+      - key: EVENTS_QUEUE_TYPE
+        value: emulator
+      - key: EVENTS_QUEUE_NAME
+        value: events
+      - key: EVENTS_QUEUE_ENDPOINT # https://<url-api>.onrender.com/v1/events
+        sync: false
+      - key: EVENTS_QUEUE_USER_ID # id du compte système (étape INSERT)
+        sync: false
+      - key: EVENTS_QUEUE_USER_API_KEY # clé du compte système (étape INSERT)
+        sync: false
+      # Firebase
+      - key: FIREBASE_CREDENTIALS # contenu JSON du compte de service, sur une ligne
+        sync: false
+      - key: GCP_PROJECT_ID
+        sync: false
+      # URL de l'interface web (liens dans les e-mails)
+      - key: APP_URL
+        sync: false
+      # SMTP (e-mails admin) – Mailtrap ou autre
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM_EMAIL
+        sync: false
+      - key: SMTP_FROM_NAME
+        value: httpSMS
+      # Turnstile : clé secrète de TEST Cloudflare (passe toujours)
+      - key: CLOUDFLARE_TURNSTILE_SECRET_KEY
+        value: 1x0000000000000000000000000000000AA
+
+  # Interface web (Nuxt généré en statique)
+  - type: web
+    name: httpsms-web
+    runtime: static
+    buildCommand: cd web && npm install -g pnpm && pnpm install && pnpm run generate
+    staticPublishPath: ./web/.output/public
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: API_BASE_URL # https://<url-api>.onrender.com
+        sync: false
+      - key: APP_URL # https://<url-web>.onrender.com
+        sync: false
+      - key: APP_NAME
+        value: httpSMS
+      - key: FIREBASE_API_KEY
+        sync: false
+      - key: FIREBASE_AUTH_DOMAIN
+        sync: false
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_STORAGE_BUCKET
+        sync: false
+      - key: FIREBASE_MESSAGING_SENDER_ID
+        sync: false
+      - key: FIREBASE_APP_ID
+        sync: false
+      - key: FIREBASE_MEASUREMENT_ID
+        sync: false
+      # Turnstile : clé de site de TEST Cloudflare
+      - key: CLOUDFLARE_TURNSTILE_SITE_KEY
+        value: 1x00000000000000000000AA
