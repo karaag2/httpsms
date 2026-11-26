@@ -61,19 +61,8 @@ services:
       # URL de l'interface web (liens dans les e-mails)
       - key: APP_URL
         sync: false
-      # SMTP (e-mails admin) – Mailtrap ou autre
-      - key: SMTP_HOST
-        sync: false
-      - key: SMTP_PORT
-        sync: false
-      - key: SMTP_USERNAME
-        sync: false
-      - key: SMTP_PASSWORD
-        sync: false
-      - key: SMTP_FROM_EMAIL
-        sync: false
-      - key: SMTP_FROM_NAME
-        value: httpSMS
+      # SMTP volontairement absent pour le POC : l'API démarre sans,
+      # seuls les e-mails admin (alertes téléphone hors ligne, etc.) échoueront dans les logs.
       # Turnstile : clé secrète de TEST Cloudflare (passe toujours)
       - key: CLOUDFLARE_TURNSTILE_SECRET_KEY
         value: 1x0000000000000000000000000000000AA
