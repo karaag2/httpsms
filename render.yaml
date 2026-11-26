@@ -71,7 +71,7 @@ services:
   - type: web
     name: httpsms-web
     runtime: static
-    buildCommand: cd web && npm install -g pnpm && pnpm install && pnpm run generate
+    buildCommand: cd web && npx --yes pnpm@10 install --frozen-lockfile && npx --yes pnpm@10 run generate
     staticPublishPath: ./web/.output/public
     routes:
       - type: rewrite
@@ -82,6 +82,8 @@ services:
         sync: false
       - key: APP_URL # https://<url-web>.onrender.com
         sync: false
+      - key: NODE_VERSION
+        value: "22"
       - key: APP_NAME
         value: httpSMS
       - key: FIREBASE_API_KEY
